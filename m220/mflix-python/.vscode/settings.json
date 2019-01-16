@@ -1,4 +1,4 @@
 {
-  "python.pythonPath": "C:\\Users\\186866380\\AppData\\Local\\Continuum\\anaconda3\\envs\\mflix\\python.exe",
+  "python.pythonPath": "/home/gbenro/anaconda3/bin/python",
   "python.formatting.provider": "yapf"
 }
