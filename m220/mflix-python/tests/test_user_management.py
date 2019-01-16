@@ -12,14 +12,17 @@ test_user = {
 
 @pytest.mark.user_management
 def test_registration(client):
-    delete_user('magicz@cats.com')
+    result = delete_user('magicz@cats.com')
+
+    assert result == {'success': True}
     # the password will be hashed at the api layer
     # NEVER
     # NEVER
     # NEVER store passwords in plaintext
 
-    result = add_user(test_user.get('name'), test_user.get(
-        'email'), test_user.get('password'))
+    result = add_user(
+        test_user.get('name'), test_user.get('email'),
+        test_user.get('password'))
 
     assert result == {'success': True}
 
@@ -31,8 +34,9 @@ def test_registration(client):
 
 @pytest.mark.user_management
 def test_no_duplicate_registrations(client):
-    result = add_user(test_user.get('name'), test_user.get(
-        'email'), test_user.get('password'))
+    result = add_user(
+        test_user.get('name'), test_user.get('email'),
+        test_user.get('password'))
 
     assert result == {'error': "A user with the given email already exists."}
 
