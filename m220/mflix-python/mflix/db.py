@@ -11,7 +11,7 @@ Look out for TODO markers for additional help. Good luck!
 from flask import current_app, g
 from werkzeug.local import LocalProxy
 
-from pymongo import MongoClient, DESCENDING,ASCENDING
+from pymongo import MongoClient, DESCENDING, ASCENDING
 from pymongo.write_concern import WriteConcern
 from pymongo.errors import DuplicateKeyError, OperationFailure
 from bson.objectid import ObjectId
@@ -285,10 +285,13 @@ def get_movie(id):
                 "pipeline": [{
                     "$match": {
                         "$expr": {
-                            "$eq": {
-                                "movie_id": "$$id"
-                            }
+                            "$eq": ["$movie_id", "$$id"]
                         }
+                    } 
+                },
+                {
+                    "$sort": {
+                        "date": DESCENDING
                     }
                 }],
                 "as": "comments"
@@ -359,7 +362,7 @@ def add_comment(movie_id, user, comment, date):
     comment_doc = {
         "name": user.name,
         "email": user.email,
-        "movie_id": movie_id,
+        "movie_id": ObjectId(movie_id),
         "text": comment,
         "date": date
     }
@@ -375,14 +378,17 @@ def update_comment(comment_id, user_email, text, date):
     # TODO: Create/Update Comments
     # Use the user_email and comment_id to select the proper comment, then
     # update the "text" and "date" of the selected comment.
-    response = db.comments.update_one({
-        "_id": comment_id,
+    response = db.comments.update_one(
+    {
+        "_id": ObjectId(comment_id),
         "email": user_email
-    }, {"$set": {
-        "text": text,
-        "date": date
-    }},
-                                      upsert=True)
+    }, 
+    { 
+        "$set": {
+            "text": text,
+            "date": date
+        }
+    })
 
     return response
 
@@ -576,9 +582,26 @@ def most_active_commenters():
     """
     # TODO: User Report
     # Return the 20 users who have commented the most on MFlix.
-    pipeline = []
+    pipeline = [
+        {
+            "$group": {
+                "_id": "$email",
+                "count": {
+                    "$sum": ASCENDING
+                }
+            }
+        },
+        {
+            "$sort": {
+                "count": DESCENDING
+            }
+        },
+        {
+            "$limit": 20
+        }
+    ]
 
-    rc = db.comments.read_concern  # you may want to change this read concern!
+    rc = ReadConcern(level="majority")  # you may want to change this read concern!
     comments = db.comments.with_options(read_concern=rc)
     result = comments.aggregate(pipeline)
     return list(result)
