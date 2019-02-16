@@ -14,7 +14,7 @@ describe("MongoClient", async () => {
      * parameters.
      */
 
-    let testClient
+    let testClient = MongoClient
     try {
       testClient = await MongoClient.connect(
         process.env.MFLIX_DB_URI,
@@ -50,7 +50,7 @@ describe("MongoClient", async () => {
      * connectTimeoutMS, retryWrites and again useNewUrlParser.
      */
 
-    let testClient
+    let testClient = MongoClient
     try {
       testClient = await MongoClient.connect(
         process.env.MFLIX_DB_URI,
@@ -80,7 +80,7 @@ describe("MongoClient", async () => {
      * sure that "mflix" has the necessary collections to run the application.
      */
 
-    let testClient
+    let testClient = MongoClient
     try {
       testClient = await MongoClient.connect(
         process.env.MFLIX_DB_URI,
@@ -117,7 +117,7 @@ describe("MongoClient", async () => {
      * data we expect.
      */
 
-    let testClient
+    let testClient = MongoClient
     try {
       testClient = await MongoClient.connect(
         process.env.MFLIX_DB_URI,
