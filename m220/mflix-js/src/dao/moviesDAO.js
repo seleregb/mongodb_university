@@ -28,11 +28,18 @@ export default class MoviesDAO {
   static async getConfiguration() {
     const roleInfo = await mflix.command({ connectionStatus: 1 })
     const authInfo = roleInfo.authInfo.authenticatedUserRoles[0]
-    const { poolSize, wtimeout } = movies.s.db.serverConfig.s.options
+    const {
+      poolSize,
+      wtimeout,
+      authSource,
+      ssl,
+    } = movies.s.db.serverConfig.s.options
     let response = {
       poolSize,
       wtimeout,
       authInfo,
+      authSource,
+      ssl,
     }
     return response
   }
@@ -337,10 +344,22 @@ export default class MoviesDAO {
       Handle the error that occurs when an invalid ID is passed to this method.
       When this specific error is thrown, the method should return `null`.
       */
-
+      let dupErrorMsg = e.errormsg
+      if (
+        dupErrorMsg ===
+        "E11000 duplicate key error collection : mflix.errors index: _id_ dup key: { : 0 }"
+      ) {
+        return null
+      } else if (
+        `${e}` ===
+        "Error: Argument passed in must be a single String of 12 bytes or a string of 24 hex characters"
+      ) {
+        console.log(e)
+        return null
+      }
       // TODO Ticket: Error Handling
       // Catch the InvalidId error by string matching, and then handle it.
-      console.error(`Something went wrong in getMovieByID: ${e}`)
+      // console.error(`Something went wrong in getMovieByID: ${e}`)
       throw e
     }
   }
